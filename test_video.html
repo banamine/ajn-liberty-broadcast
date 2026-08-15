@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html>
+<body>
+<video id="vid" controls autoplay src="/api/stream-proxy?url=https%3A%2F%2Farchive.org%2Fdownload%2Fancientalienscollection%2Fancient.aliens.s15e11.1080p.web.h264-trump.mp4"></video>
+<script>
+  const vid = document.getElementById('vid');
+  vid.onerror = (e) => {
+    console.error("Video error!", vid.error);
+  };
+</script>
+</body>
+</html>
