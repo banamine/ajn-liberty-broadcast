@@ -54,6 +54,9 @@ import { safeLocalStorage } from "./utils/safeStorage";
 import { PlaylistVault } from "./services/PlaylistVault";
 import { analyzeSmartPlaylists, SmartPlaylistCategory } from "./utils/smartPlaylistEngine";
 
+const BACKEND_URL = import.meta.env.VITE_API_URL || 'https://ajn-archive-iptv-player-382115576551.us-west2.run.app';
+
+
 // Dynamic playout generator with Central Time Zone (CDT is UTC-5) 10 AM rules and reversed playlist items
 export const getDynamicM3U = (): string => {
   const now = new Date();
@@ -584,7 +587,7 @@ if (playerStore.state === "playing" && audioController.isSiriusPlaying) {
     if (!m3uUrlInput) return;
     try {
       addLog(`Connecting to remote playout URL: ${m3uUrlInput}`, "info");
-      const res = await fetch(`/api/stream-proxy?url=${encodeURIComponent(m3uUrlInput)}`);
+      const res = await fetch(BACKEND_URL + `/api/stream-proxy?url=${encodeURIComponent(m3uUrlInput)}`);
       if (!res.ok) throw new Error("HTTP connection failed with status " + res.status);
       const text = await res.text();
       await parseAndLoadM3U(text);

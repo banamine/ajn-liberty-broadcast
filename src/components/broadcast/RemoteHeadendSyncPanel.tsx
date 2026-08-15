@@ -23,6 +23,9 @@ import {
 } from "lucide-react";
 import { M3UPollingDashboard } from "./M3UPollingDashboard";
 
+const BACKEND_URL = import.meta.env.VITE_API_URL || 'https://ajn-archive-iptv-player-382115576551.us-west2.run.app';
+
+
 interface RemoteHeadendSyncPanelProps {
   theme?: "dark" | "light";
   addLog: (msg: string, type?: "info" | "warning" | "error") => void;
@@ -241,7 +244,7 @@ export const RemoteHeadendSyncPanel: React.FC<RemoteHeadendSyncPanelProps> = ({
       const pushEndpoint = `${targetUrl.replace(/\/$/, "")}/api/sync/push`;
       
       // Fetch active profiles and episodes from local state to push
-      const profilesRes = await fetch("/api/newsbot/profiles");
+      const profilesRes = await fetch(BACKEND_URL + "/api/newsbot/profiles");
       const profilesData = await profilesRes.json();
 
       const response = await fetch(pushEndpoint, {

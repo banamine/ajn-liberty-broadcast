@@ -15,6 +15,9 @@ import {
 } from "lucide-react";
 import { clearCache } from "../services/IndexedDB";
 
+const BACKEND_URL = import.meta.env.VITE_API_URL || 'https://ajn-archive-iptv-player-382115576551.us-west2.run.app';
+
+
 interface DiscoveredChannel {
   id: string;
   num: number;
@@ -77,7 +80,7 @@ export const ControlHub: React.FC<ControlHubProps> = ({ onNavigate, onLog }) => 
   const fetchLiveMetrics = async () => {
     const startTime = performance.now();
     try {
-      const res = await fetch("/api/telemetry/stats");
+      const res = await fetch(BACKEND_URL + "/api/telemetry/stats");
       const endTime = performance.now();
       setLiveRoundtripMs(Math.round(endTime - startTime));
       if (res.ok) {
@@ -158,7 +161,7 @@ export const ControlHub: React.FC<ControlHubProps> = ({ onNavigate, onLog }) => 
     setIsSyncingRss(true);
     if (onLog) onLog("Control Hub: Syncing daily broadcasts from RSS archives...");
     try {
-      const res = await fetch("/api/ajn-archive");
+      const res = await fetch(BACKEND_URL + "/api/ajn-archive");
       const data = await res.json();
       if (data.success) {
         const nowStr = new Date().toLocaleTimeString();

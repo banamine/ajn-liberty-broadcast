@@ -2,6 +2,9 @@ import React, { useEffect, useRef, useState } from 'react';
 import Hls from 'hls.js';
 import { Volume2 } from 'lucide-react';
 
+const BACKEND_URL = import.meta.env.VITE_API_URL || 'https://ajn-archive-iptv-player-382115576551.us-west2.run.app';
+
+
 interface SmartVideoEngineProps {
   url: string;
   onPlaying?: () => void;
@@ -59,7 +62,7 @@ export const SmartVideoEngine: React.FC<SmartVideoEngineProps> = ({ url, onPlayi
           const videoId = match ? match[1] : null;
           
           if (videoId) {
-            const res = await fetch(`/api/rumble/stream-data/${videoId}`);
+            const res = await fetch(BACKEND_URL + `/api/rumble/stream-data/${videoId}`);
             if (res.ok) {
               const payload = await res.json();
               if (payload.success && payload.data?.u?.hls?.url) {

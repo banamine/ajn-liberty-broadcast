@@ -52,6 +52,9 @@ import { TVGuideDashboard } from "./TVGuideDashboard";
 import { DefaultChannelManifests, LiveChannelManifests } from "../data/manifests";
 import { ScheduleShow } from "../types/tvGuide";
 
+const BACKEND_URL = import.meta.env.VITE_API_URL || 'https://ajn-archive-iptv-player-382115576551.us-west2.run.app';
+
+
 export interface MultiplexerChannelConfig {
   channelId: string;
   num: number;
@@ -267,7 +270,7 @@ export const BroadcastTVGuide = React.memo(function BroadcastTVGuide({
   const [rssEpisodes, setRssEpisodes] = useState<any[]>([]);
 
   useEffect(() => {
-    fetch("/api/ajn-archive")
+    fetch(BACKEND_URL + "/api/ajn-archive")
       .then((res) => {
         const contentType = res.headers.get("content-type") || "";
         if (res.ok && contentType.includes("application/json")) {
@@ -284,7 +287,7 @@ export const BroadcastTVGuide = React.memo(function BroadcastTVGuide({
   }, []);
 
   useEffect(() => {
-    fetch("/api/ajn-discover-channels")
+    fetch(BACKEND_URL + "/api/ajn-discover-channels")
       .then(res => {
         const contentType = res.headers.get("content-type") || "";
         if (res.ok && contentType.includes("application/json")) {

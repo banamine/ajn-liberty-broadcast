@@ -75,6 +75,9 @@ import { VideoPlayer } from "./VideoPlayer";
 import { ControlHub } from "./ControlHub";
 import { PlaybackCircuitBreaker } from "../utils/PlaybackCircuitBreaker";
 
+const BACKEND_URL = import.meta.env.VITE_API_URL || 'https://ajn-archive-iptv-player-382115576551.us-west2.run.app';
+
+
 const archiveBreaker = new PlaybackCircuitBreaker(3, 15000);
 
 const getDynamicM3U = (): string => {
@@ -305,7 +308,7 @@ export const LiteApp = React.memo(function LiteApp({
       ...details
     };
 
-    fetch("/api/telemetry", {
+    fetch(BACKEND_URL + "/api/telemetry", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload)
@@ -550,7 +553,7 @@ export const LiteApp = React.memo(function LiteApp({
   const [nowPlayingChannels, setNowPlayingChannels] = useState<{name: string, url: string, number: number, category: string}[]>([]);
 
   useEffect(() => {
-    fetch("/api/now-playing").then(r => {
+    fetch(BACKEND_URL + "/api/now-playing").then(r => {
       const contentType = r.headers.get("content-type") || "";
       if (r.ok && contentType.includes("application/json")) {
         return r.json();
@@ -564,7 +567,7 @@ export const LiteApp = React.memo(function LiteApp({
     const loadAjnEpisodes = async () => {
       setLoadingAjn(true);
       try {
-        const res = await fetch("/api/ajn-archive");
+        const res = await fetch(BACKEND_URL + "/api/ajn-archive");
         if (res.ok) {
           const data = await res.json();
           if (active && data.success && data.episodes) {
@@ -1023,7 +1026,7 @@ export const LiteApp = React.memo(function LiteApp({
           const reqItems = batch.map(ch => ({ id: ch.url, url: ch.url }));
           
           try {
-             const res = await fetch("/api/probe-duration", {
+             const res = await fetch(BACKEND_URL + "/api/probe-duration", {
                method: "POST",
                headers: { "Content-Type": "application/json" },
                body: JSON.stringify({ items: reqItems, timeout: 15 })
@@ -1546,7 +1549,7 @@ export const LiteApp = React.memo(function LiteApp({
                   if (url && url.trim()) {
                     try {
                       addLog(`Connecting to remote playout URL: ${url}`, "info");
-                      const res = await fetch(`/api/stream-proxy?url=${encodeURIComponent(url)}`);
+                      const res = await fetch(BACKEND_URL + `/api/stream-proxy?url=${encodeURIComponent(url)}`);
                       if (!res.ok) throw new Error("HTTP connection failed with status " + res.status);
                       const text = await res.text();
                       await parseAndLoadM3U(text);

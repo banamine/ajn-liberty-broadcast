@@ -5,6 +5,9 @@
 
 import { getDBValue, putsDBValue } from "../services/IndexedDB";
 
+const BACKEND_URL = import.meta.env.VITE_API_URL || 'https://ajn-archive-iptv-player-382115576551.us-west2.run.app';
+
+
 export interface SemanticMediaItem {
   id: string;
   displayDate: string;
@@ -315,7 +318,7 @@ export async function fetchArchiveCollectionFiles(identifier: string): Promise<s
     // Fallback to proxy API
     if (filesList.length === 0) {
       try {
-        const res = await fetch(`/api/playlist/import-from-archive-metadata`, {
+        const res = await fetch(BACKEND_URL + `/api/playlist/import-from-archive-metadata`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json"

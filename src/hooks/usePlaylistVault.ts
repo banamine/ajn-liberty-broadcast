@@ -11,6 +11,9 @@ import { IPTVChannel, M3UPlaylist } from "../types";
 import { PlaylistVault, parseM3UPlaylistAsync } from "../services/PlaylistVault";
 import { PlaylistPollingService } from "../services/PlaylistPollingService";
 
+const BACKEND_URL = import.meta.env.VITE_API_URL || 'https://ajn-archive-iptv-player-382115576551.us-west2.run.app';
+
+
 export function usePlaylistVault() {
   const [channels, setChannels] = useState<IPTVChannel[]>([]);
   const [playlists, setPlaylists] = useState<M3UPlaylist[]>([]);
@@ -33,7 +36,7 @@ export function usePlaylistVault() {
       // 2. Fetch the real archive shows from `/api/ajn-archive`
       let archiveChannels: IPTVChannel[] = [];
       try {
-        const response = await fetch("/api/ajn-archive");
+        const response = await fetch(BACKEND_URL + "/api/ajn-archive");
         if (response.ok) {
           const result = await response.json();
           if (result && result.success && Array.isArray(result.episodes)) {

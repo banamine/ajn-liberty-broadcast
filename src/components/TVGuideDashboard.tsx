@@ -7,6 +7,9 @@ import { DailyView } from "./DailyView";
 import { ArchiveComponent } from "./ArchiveComponent";
 import { Calendar, Layers, Clock, Film, Radio, Tv, Star, Volume2, Sparkles, HelpCircle } from "lucide-react";
 
+const BACKEND_URL = import.meta.env.VITE_API_URL || 'https://ajn-archive-iptv-player-382115576551.us-west2.run.app';
+
+
 interface TVGuideDashboardProps {
   onPlayMainStream?: (url: string, title: string) => void;
 }
@@ -19,7 +22,7 @@ export const TVGuideDashboard: React.FC<TVGuideDashboardProps> = ({ onPlayMainSt
   const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
-    fetch("/api/ajn-archive")
+    fetch(BACKEND_URL + "/api/ajn-archive")
       .then((res) => {
         const contentType = res.headers.get("content-type") || "";
         if (res.ok && contentType.includes("application/json")) {

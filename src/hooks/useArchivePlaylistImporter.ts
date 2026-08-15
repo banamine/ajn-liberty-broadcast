@@ -4,6 +4,9 @@ import { getCachedImport, setCachedImport } from "../services/IndexedDB";
 import { toastService } from "../utils/toast";
 import { detectArchiveUrlType, extractArchiveDetails } from "../utils/archiveUtils";
 
+const BACKEND_URL = import.meta.env.VITE_API_URL || 'https://ajn-archive-iptv-player-382115576551.us-west2.run.app';
+
+
 interface UseArchivePlaylistImporterProps {
   allTracks: MusicTrack[];
   addTracks: (tracks: MusicTrack[]) => Promise<void>;
@@ -293,7 +296,7 @@ export function useArchivePlaylistImporter({
       if (!isFromBatch) setProgress(30);
 
       try {
-        const response = await fetch("/api/playlist/import-from-archive-metadata", {
+        const response = await fetch(BACKEND_URL + "/api/playlist/import-from-archive-metadata", {
           method: "POST",
           headers: {
             "Content-Type": "application/json"
@@ -486,7 +489,7 @@ export function useArchivePlaylistImporter({
       });
 
       try {
-        const response = await fetch("/api/playlist/import-batch-archive-metadata", {
+        const response = await fetch(BACKEND_URL + "/api/playlist/import-batch-archive-metadata", {
           method: "POST",
           headers: {
             "Content-Type": "application/json"

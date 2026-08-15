@@ -40,6 +40,9 @@ import { BroadcastSchedulerView } from "./broadcast/BroadcastSchedulerView";
 import { CreateAutoChannelPanel } from "./CreateAutoChannelPanel";
 import { useEscapeKey } from "../hooks/useEscapeKey";
 
+const BACKEND_URL = import.meta.env.VITE_API_URL || 'https://ajn-archive-iptv-player-382115576551.us-west2.run.app';
+
+
 export interface AutomationChannel {
   id: string;
   name: string;
@@ -231,7 +234,7 @@ export function BroadcastAutomationSuite({
 
   const loadNewsProfiles = useCallback(async () => {
     try {
-      const res = await fetch("/api/newsbot/profiles");
+      const res = await fetch(BACKEND_URL + "/api/newsbot/profiles");
       if (res.ok) {
         const data = await res.json();
         if (data.success) {
@@ -245,7 +248,7 @@ export function BroadcastAutomationSuite({
 
   const handleToggleNewsProfile = async (id: string, currentActive: boolean) => {
     try {
-      const res = await fetch("/api/newsbot/profiles/toggle", {
+      const res = await fetch(BACKEND_URL + "/api/newsbot/profiles/toggle", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id, isActive: !currentActive })
@@ -263,7 +266,7 @@ export function BroadcastAutomationSuite({
     setIsNewsHarvesting(true);
     if (addLog) addLog("News Headend: Manual harvest requested. Initiating NewsBot...");
     try {
-      const res = await fetch("/api/newsbot/harvest", { method: "POST" });
+      const res = await fetch(BACKEND_URL + "/api/newsbot/harvest", { method: "POST" });
       if (res.ok) {
         const data = await res.json();
         if (data.success) {
@@ -288,7 +291,7 @@ export function BroadcastAutomationSuite({
 
   const loadExistingM3UGuide = useCallback(async () => {
     try {
-      const res = await fetch("/api/m3u-splitter/load-guide");
+      const res = await fetch(BACKEND_URL + "/api/m3u-splitter/load-guide");
       if (res.ok) {
         const data = await res.json();
         if (data.success && data.tvGuide && data.tvGuide.shows) {
@@ -321,7 +324,7 @@ export function BroadcastAutomationSuite({
     setM3uError("");
     setIsM3uProcessing(true);
     try {
-      const response = await fetch("/api/m3u-splitter/process", {
+      const response = await fetch(BACKEND_URL + "/api/m3u-splitter/process", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -587,7 +590,7 @@ export function BroadcastAutomationSuite({
     setIsProcessingRumble(true);
     try {
       const url = rumbleInput.trim();
-      const response = await fetch(`/api/rumble/oembed?url=${encodeURIComponent(url)}`);
+      const response = await fetch(BACKEND_URL + `/api/rumble/oembed?url=${encodeURIComponent(url)}`);
       if (!response.ok) {
         throw new Error("Could not resolve video details from oembed proxy");
       }
@@ -649,7 +652,7 @@ export function BroadcastAutomationSuite({
         throw new Error("Could not parse Rumble channel username from input");
       }
 
-      const response = await fetch(`/api/rumble/channel/${encodeURIComponent(username)}`);
+      const response = await fetch(BACKEND_URL + `/api/rumble/channel/${encodeURIComponent(username)}`);
       if (!response.ok) {
         throw new Error(`Rumble channel scanner returned status: ${response.status}`);
       }
@@ -716,7 +719,7 @@ export function BroadcastAutomationSuite({
       }
 
       try {
-        const response = await fetch(`/api/rumble/oembed?url=${encodeURIComponent(fav.source)}`);
+        const response = await fetch(BACKEND_URL + `/api/rumble/oembed?url=${encodeURIComponent(fav.source)}`);
         if (response.ok) {
           const result = await response.json();
           if (result.success && result.data) {
@@ -1066,7 +1069,7 @@ export function BroadcastAutomationSuite({
     
     try {
       const username = extractRumbleUsername(fav.source, fav.name);
-      const response = await fetch(`/api/rumble/channel/${encodeURIComponent(username)}`);
+      const response = await fetch(BACKEND_URL + `/api/rumble/channel/${encodeURIComponent(username)}`);
       if (!response.ok) {
         throw new Error(`Rumble channel scanner returned status: ${response.status}`);
       }
@@ -2469,7 +2472,7 @@ export function BroadcastAutomationSuite({
                       <div className="flex justify-between pb-1">
                         <span>Virtual Stream:</span>
                         <a
-                          href={`/api/m3u-splitter/virtual-stitch?profileId=${p.id}`}
+                          href={`${BACKEND_URL}/api/m3u-splitter/virtual-stitch?profileId=${p.id}`}
                           target="_blank"
                           rel="noreferrer"
                           className="text-amber-400 hover:underline hover:text-amber-300 font-mono text-[10px]"
@@ -2915,13 +2918,13 @@ export function BroadcastAutomationSuite({
                                         scheduleManager.assignTagToChannel(newChId, "VOD");
                                       }
 
-                                      fetch("/api/channel-registry/tags")
+                                      fetch(BACKEND_URL + "/api/channel-registry/tags")
                                         .then(res => res.json())
                                         .then(tagData => {
                                           const updatedTags = tagData.tags || {};
                                           updatedTags[newChId] = ["M3U-Splitter", "VOD"];
                                           const updatedAllTags = Array.from(new Set([...(tagData.allTags || []), "M3U-Splitter", "VOD"]));
-                                          fetch("/api/channel-registry/tags", {
+                                          fetch(BACKEND_URL + "/api/channel-registry/tags", {
                                             method: "POST",
                                             headers: { "Content-Type": "application/json" },
                                             body: JSON.stringify({ tags: updatedTags, allTags: updatedAllTags })

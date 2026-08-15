@@ -23,6 +23,9 @@ import { PlaylistVault } from "../../services/PlaylistVault";
 import { PlaylistPollingService } from "../../services/PlaylistPollingService";
 import { M3UPlaylist, M3UPlaylistVersion } from "../../types";
 
+const BACKEND_URL = import.meta.env.VITE_API_URL || 'https://ajn-archive-iptv-player-382115576551.us-west2.run.app';
+
+
 interface M3UPollingDashboardProps {
   theme?: "dark" | "light";
   addLog: (msg: string, type?: "info" | "warning" | "error") => void;
@@ -98,7 +101,7 @@ export const M3UPollingDashboard: React.FC<M3UPollingDashboardProps> = ({
     addLog(`REST API: Triggering manual refresh for "${playlist.name}"...`, "info");
 
     try {
-      const response = await fetch("/api/admin/m3u-playlists/refresh", {
+      const response = await fetch(BACKEND_URL + "/api/admin/m3u-playlists/refresh", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

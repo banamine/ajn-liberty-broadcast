@@ -7,6 +7,9 @@ import { BroadcastRuntimeKernel, KernelSubsystem } from "./BroadcastRuntimeKerne
 import { IPTVChannel } from "../types";
 import { sanitizeChannelTitle } from "../utils/semanticResolver";
 
+const BACKEND_URL = import.meta.env.VITE_API_URL || 'https://ajn-archive-iptv-player-382115576551.us-west2.run.app';
+
+
 
 export interface ScheduleItem {
   id: string;
@@ -213,7 +216,7 @@ export class BroadcastScheduleManager implements KernelSubsystem {
 
   public async loadTags(): Promise<void> {
     try {
-      const res = await fetch("/api/channel-registry/tags");
+      const res = await fetch(BACKEND_URL + "/api/channel-registry/tags");
       if (res.ok) {
         const data = await res.json();
         this.customTags = data.tags || {};
@@ -228,7 +231,7 @@ export class BroadcastScheduleManager implements KernelSubsystem {
 
   public async saveTags(): Promise<void> {
     try {
-      const res = await fetch("/api/channel-registry/tags", {
+      const res = await fetch(BACKEND_URL + "/api/channel-registry/tags", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"

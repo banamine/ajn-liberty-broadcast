@@ -37,6 +37,7 @@ const playbackFailureSinkPlugin = () => ({
 
 export default defineConfig(() => {
   return {
+    base: '/ajn-liberty-broadcast/',
     define: {
       'process.env.APP_URL': JSON.stringify(process.env.APP_URL || ''),
     },

@@ -8,6 +8,9 @@ import {
 } from "lucide-react";
 import { toastService } from "../utils/toast";
 
+const BACKEND_URL = import.meta.env.VITE_API_URL || 'https://ajn-archive-iptv-player-382115576551.us-west2.run.app';
+
+
 const SEARCH_PRESETS = [
   { label: "Alex Jones Show", query: "Alex Jones Show" },
   { label: "War Room", query: "War Room" },
@@ -80,8 +83,7 @@ export const ArchiveComponent: React.FC<ArchiveComponentProps> = ({ schedule, on
     }
 
     try {
-      const response = await fetch(
-        `/api/archive/search?q=${encodeURIComponent(searchQueryStr)}&mediatype=${encodeURIComponent(
+      const response = await fetch(BACKEND_URL + `/api/archive/search?q=${encodeURIComponent(searchQueryStr)}&mediatype=${encodeURIComponent(
           mediatypeParam
         )}&page=${targetPage}&rows=20`
       );
@@ -188,7 +190,7 @@ export const ArchiveComponent: React.FC<ArchiveComponentProps> = ({ schedule, on
     setInspectingItem({ identifier, title, creator, description, date: publicdate, files: [] });
 
     try {
-      const response = await fetch("/api/playlist/import-from-archive-metadata", {
+      const response = await fetch(BACKEND_URL + "/api/playlist/import-from-archive-metadata", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ identifier, includeVideo: true })

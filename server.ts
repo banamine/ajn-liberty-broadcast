@@ -4,6 +4,7 @@ dotenv.config();
 import express from "express";import streamProxyRouter from "./server/routes/streamProxy.ts";
 import path from "path";
 import fs from "fs";
+import cors from "cors";
 import { rename, writeFile } from "fs/promises";
 import { createServer as createViteServer } from "vite";
 import { Readable } from "stream";
@@ -540,6 +541,7 @@ express.static.mime.define({'application/javascript': ['js', 'cjs', 'mjs']});
   let lastSyncTime: string | null = null;
 
 
+  app.use(cors({ origin: '*' }));
   app.use(express.json({ limit: "10mb" }));
 
   // Initialize SQLite Database

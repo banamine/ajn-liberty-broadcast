@@ -2,6 +2,9 @@ import { safeLocalStorage } from "../utils/safeStorage";
 import React, { useState, useRef, useEffect } from "react";
 import { Folder, Film, FileText, ToggleLeft, ToggleRight, Sparkles, AlertCircle, Play, CheckCircle, Trash2, Shuffle, Layers, RefreshCw } from "lucide-react";
 
+const BACKEND_URL = import.meta.env.VITE_API_URL || 'https://ajn-archive-iptv-player-382115576551.us-west2.run.app';
+
+
 interface IngestedTrack {
   id: string;
   title: string;
@@ -381,7 +384,7 @@ export function CreateAutoChannelPanel({ onChannelCreated, addLog }: CreateAutoC
       }
 
       // POST to backend SQLite-like JSON store
-      const response = await fetch("/api/ajn-custom-auto-channels", {
+      const response = await fetch(BACKEND_URL + "/api/ajn-custom-auto-channels", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

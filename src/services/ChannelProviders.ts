@@ -1,6 +1,9 @@
 import { validateStreamURL } from "../utils/categoryParser";
 import { fetchArchiveCollectionFiles, parseArchiveManifest, parseSemanticDate } from "../utils/semanticResolver";
 
+const BACKEND_URL = import.meta.env.VITE_API_URL || 'https://ajn-archive-iptv-player-382115576551.us-west2.run.app';
+
+
 export interface PlaybackAction {
   action: "embed" | "external";
   url: string;
@@ -51,7 +54,7 @@ export class RSSChannelProvider implements ChannelProvider {
     const isAJN = source && (source.includes("alexjones.media") || source.includes("ajn"));
     if (isAJN) {
       try {
-        const res = await fetch("/api/ajn-archive");
+        const res = await fetch(BACKEND_URL + "/api/ajn-archive");
         if (res.ok) {
           const contentType = res.headers.get("content-type") || "";
           if (contentType.includes("application/json")) {
@@ -355,7 +358,7 @@ export class RumbleChannelProvider implements ChannelProvider {
   async validate(source: string): Promise<boolean> {
     if (!source || !source.includes("rumble.com")) return false;
     try {
-      const response = await fetch(`/api/rumble/oembed?url=${encodeURIComponent(source)}`);
+      const response = await fetch(BACKEND_URL + `/api/rumble/oembed?url=${encodeURIComponent(source)}`);
       return response.ok;
     } catch {
       return false;
@@ -383,7 +386,7 @@ export class RumbleChannelProvider implements ChannelProvider {
       return { isLive: false, message: "No source URL provided" };
     }
     try {
-      const response = await fetch(`/api/rumble/oembed?url=${encodeURIComponent(source)}`);
+      const response = await fetch(BACKEND_URL + `/api/rumble/oembed?url=${encodeURIComponent(source)}`);
       if (response.ok) {
         const contentType = response.headers.get("content-type") || "";
         if (contentType.includes("application/json")) {
@@ -404,7 +407,7 @@ export class RumbleChannelProvider implements ChannelProvider {
 
   async getMetadata(channel: any): Promise<ChannelMetadata> {
     try {
-      const response = await fetch(`/api/rumble/oembed?url=${encodeURIComponent(channel.source)}`);
+      const response = await fetch(BACKEND_URL + `/api/rumble/oembed?url=${encodeURIComponent(channel.source)}`);
       if (response.ok) {
         const contentType = response.headers.get("content-type") || "";
         if (contentType.includes("application/json")) {

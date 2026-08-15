@@ -4,6 +4,9 @@ import { telemetry, logUserAction, generateCorrelationId, monitorVideoStalls } f
 import { Tv, Mic2, Play, Pause, Square, SkipBack, SkipForward, Volume2, Info, ListVideo } from 'lucide-react';
 import './PodcastTuner.css';
 
+const BACKEND_URL = import.meta.env.VITE_API_URL || 'https://ajn-archive-iptv-player-382115576551.us-west2.run.app';
+
+
 export function PodcastTuner({ audioController }: { audioController?: any }) {
   const [stations, setStations] = useState<any[]>([]);
   const [currentStation, setCurrentStation] = useState<any>(null);
@@ -71,7 +74,7 @@ export function PodcastTuner({ audioController }: { audioController?: any }) {
       mainVideo.pause();
     }
 
-    fetch('/api/tuner/stations').then(r => r.json()).then(data => {
+    fetch(BACKEND_URL + '/api/tuner/stations').then(r => r.json()).then(data => {
       setStations(data);
       if (data.length > 0) {
         setCurrentStation(data[0]);
