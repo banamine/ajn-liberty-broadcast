@@ -1,7 +1,6 @@
 import React, { useState, useMemo, useEffect, useRef } from "react";
 import { Search, Play, Radio, Info } from "lucide-react";
 import { CHANNEL_RANGES, ChannelRange } from "../../utils/channelRanges";
-import { resolveMediaStreamUrl } from "../../utils/urlUtils";
 import { TelemetryAudit } from "../../utils/TelemetryAudit";
 
 import { List } from 'react-window';
@@ -262,7 +261,7 @@ export const TVGuideHub: React.FC<TVGuideHubProps> = ({ channels, triggerPlayout
                                 id: ch.id,
                                 channel: ch.name,
                                 title: cur.episode.title || ch.currentShowTitle || ch.name,
-                                videoUrl: resolveMediaStreamUrl(cur.episode.url || ch.streamUrl || ch.url || ch.source),
+                                videoUrl: cur.episode.url || ch.streamUrl || ch.url || ch.source || "",
                                 airDate: ch.airDate || "2026-07-22",
                                 airTime: ch.airTime || "LIVE",
                                 duration: ch.duration || Math.round(cur.durationSec / 60) || 60,
