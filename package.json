@@ -11,10 +11,12 @@
     "clean": "rm -rf dist",
     "lint": "tsc --noEmit --skipLibCheck",
     "test:news-discovery": "npx tsx server/newsDiscovery.test.ts",
-    "test": "npm run lint && npm run test:ci-contract && npm run test:news-discovery && npm run test:archive-news && npm run test:archive-resolver",
+    "test": "npm run lint && npm run test:ci-contract && npm run test:news-discovery && npm run test:archive-news && npm run test:archive-resolver && npm run test:archive-split-show",
     "test:ci-contract": "node scripts/audit-ci-contract.mjs",
     "test:archive-news": "npx tsx server/archiveNewsDiscovery.test.ts",
-    "test:archive-resolver": "npx tsx server/archiveMediaResolver.test.ts"
+    "test:archive-resolver": "npx tsx server/archiveMediaResolver.test.ts",
+    "test:archive-split-show": "npx tsx server/archiveSplitShowAudit.test.ts",
+    "audit:archive-split-shows": "npx tsx scripts/audit-archive-split-shows.ts"
   },
   "dependencies": {
     "@google/genai": "^2.4.0",
@@ -53,7 +55,7 @@
   "devDependencies": {
     "@preact/preset-vite": "^2.10.5",
     "@types/cors": "^2.8.19",
-    "@types/dompurify": "^3.0.5",
+    "@types/dompurify": "^3.0.0",
     "@types/express": "^4.17.21",
     "@types/node": "^22.14.0",
     "@types/pg": "^8.20.0",
@@ -65,7 +67,7 @@
     "esbuild": "^0.25.0",
     "pdf-parse": "^2.4.5",
     "puppeteer": "^25.5.0",
-    "tailwindcss": "^4.1.14",
+    "tailwindcss": "^4.1.0",
     "tsx": "^4.21.0",
     "typescript": "~5.8.2",
     "vite": "^6.2.3"
