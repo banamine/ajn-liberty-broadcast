@@ -11,8 +11,9 @@
     "clean": "rm -rf dist",
     "lint": "tsc --noEmit --skipLibCheck",
     "test:news-discovery": "npx tsx server/newsDiscovery.test.ts",
-    "test": "npm run lint && npm run test:ci-contract && npm run test:news-discovery",
-    "test:ci-contract": "node scripts/audit-ci-contract.mjs"
+    "test": "npm run lint && npm run test:ci-contract && npm run test:news-discovery && npm run test:archive-news",
+    "test:ci-contract": "node scripts/audit-ci-contract.mjs",
+    "test:archive-news": "npx tsx server/archiveNewsDiscovery.test.ts"
   },
   "dependencies": {
     "@google/genai": "^2.4.0",
