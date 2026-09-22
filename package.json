@@ -9,7 +9,9 @@
     "build:audit": "npm run build && node scripts/audit-failures.cjs",
     "start": "node dist/server.cjs",
     "clean": "rm -rf dist",
-    "lint": "tsc --noEmit --skipLibCheck"
+    "lint": "tsc --noEmit --skipLibCheck",
+    "test:news-discovery": "npx tsx server/newsDiscovery.test.ts",
+    "test": "npm run lint && npm run test:news-discovery"
   },
   "dependencies": {
     "@google/genai": "^2.4.0",
