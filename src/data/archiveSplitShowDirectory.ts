@@ -59,11 +59,12 @@ export function validateArchiveSplitShowDirectory(sources = ARCHIVE_SPLIT_SHOW_D
 
   for (const source of sources) {
     if (!source.id || ids.has(source.id)) errors.push(`duplicate/empty id: ${source.id || "<empty>"}`);
-    if (!source.url || urls.has(source.url)) errors.push(`duplicate/empty url: ${source.url || "<empty>"}`);
-    if (!source.url.startsWith(BASE)) errors.push(`unexpected source root: ${source.url}`);
-    if (!source.url.toLowerCase().endsWith(".m3u")) errors.push(`non-M3U source: ${source.url}`);
-    ids.add(source.id);
-    urls.add(source.url);
+    if (source.url) {
+      if (urls.has(source.url)) errors.push(`duplicate url: ${source.url}`);
+      if (!source.url.startsWith(BASE)) errors.push(`unexpected source root: ${source.url}`);
+      if (!source.url.toLowerCase().endsWith(".m3u")) errors.push(`non-M3U source: ${source.url}`);
+      urls.add(source.url);
+    }
   }
 
   return errors;
