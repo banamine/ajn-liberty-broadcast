@@ -375,49 +375,36 @@ if (playerStore.state === "playing" && audioController.isSiriusPlaying) {
     if (playoutUrl.includes("archive.org/") && !playoutUrl.toLowerCase().endsWith(".mp4") && !playoutUrl.toLowerCase().endsWith(".m3u") && !playoutUrl.toLowerCase().endsWith(".m3u8")) {
       let identifier = "";
       let specificFile = "";
-      if (playoutUrl.includes("archive.org/details/")) {
-          identifier = playoutUrl.split("archive.org/details/")[1]?.split("/")[0] || "";
-      } else if (playoutUrl.includes("archive.org/download/")) {
-          const parts = playoutUrl.split("archive.org/download/")[1]?.split("/");
-          identifier = parts?.[0] || "";
-          specificFile = parts?.slice(1).join("/") ? decodeURIComponent(parts.slice(1).join("/")) : "";
-      } else if (playoutUrl.includes("archive.org/embed/")) {
-          identifier = playoutUrl.split("archive.org/embed/")[1]?.split("?")[0] || "";
+      try {
+        const archiveUrl = new URL(playoutUrl);
+        const parts = archiveUrl.pathname.split("/").filter(Boolean);
+        const marker = parts.findIndex(part => part === "details" || part === "download");
+        if (marker >= 0) {
+          identifier = decodeURIComponent(parts[marker + 1] || "");
+          specificFile = marker === 1 && parts.length > marker + 2
+            ? decodeURIComponent(parts.slice(marker + 2).join("/"))
+            : "";
+        }
+      } catch {
+        identifier = "";
       }
+
       if (identifier) {
-          try {
-              const res = await fetch(`https://archive.org/metadata/${identifier}`);
-              const data = await res.json();
-              let mp4File = null;
-              if (specificFile && specificFile.lastIndexOf(".") > -1) {
-                  const baseName = specificFile.substring(0, specificFile.lastIndexOf("."));
-                  mp4File = data?.files?.find((f: any) => 
-                    f.name.startsWith(baseName) && 
-                    f.name.endsWith(".mp4") && 
-                    (f.format?.toLowerCase().includes("h.264") || f.format?.toLowerCase().includes("512kb mpeg4") || f.format?.toLowerCase().includes("mpeg4"))
-                  );
-                  if (!mp4File) {
-                    // Fallback to finding any compatible format for this basename
-                    mp4File = data?.files?.find((f: any) => 
-                      f.name.startsWith(baseName) && 
-                      (f.format?.toLowerCase().includes("h.264") || f.format?.toLowerCase().includes("512kb mpeg4") || f.format?.toLowerCase().includes("mpeg4"))
-                    );
-                  }
-              }
-              if (!mp4File) {
-                  // No fallback guessing allowed if we can't find a compatible web-safe format.
-                  addLog(`Archive.org stream rejected: No web-safe H.264/MPEG4 format found for ${specificFile}. This prevents format errors.`, "warning");
-              }
-              if (mp4File) {
-                  playoutUrl = `https://archive.org/download/${identifier}/${mp4File.name}`;
-              }
-          } catch (e) {
-              console.warn("Failed to resolve archive.org mp4 file", e);
+        try {
+          const params = new URLSearchParams({ identifier });
+          if (specificFile) params.set("file", specificFile);
+          const resolved = await fetch(`/api/archive/resolve?${params.toString()}`).then(r => r.ok ? r.json() : null);
+          if (resolved?.isAvailable && resolved?.streamUrl) {
+            playoutUrl = resolved.streamUrl;
+          } else {
+            addLog(`Archive.org stream unavailable: ${resolved?.reason || "resolver_failed"}`, "warning");
           }
+        } catch (error) {
+          console.warn("Canonical Archive media resolution failed", error);
+          addLog("Archive.org stream resolution failed.", "warning");
+        }
       }
     }
-
-    
 
     const cleanedName = cleanTitle(playoutName);
     addLog(`Loading stream playout: ${cleanedName}`, "info");
