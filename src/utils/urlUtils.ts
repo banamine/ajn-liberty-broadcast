@@ -142,16 +142,9 @@ export function isDirectStreamUrl(url: string | null | undefined): boolean {
  * Resolves an Archive.org details URL to a direct media stream URL.
  */
 export function resolveMediaStreamUrl(rawUrl: string): string {
-  if (!rawUrl) return "";
-  
-  // If it's an Archive.org details link, convert it to a direct download link
-  if (rawUrl.includes("archive.org/details/")) {
-    const identifier = rawUrl.split("/details/")[1]?.split("/")[0];
-    // Fallback default stream or direct mp4 guess
-    return `https://archive.org/download/${identifier}/${identifier}_iv.mp4`;
-  }
-  
-  return rawUrl;
+  // Archive.org details URLs are metadata references, not playable media.
+  // Resolution is intentionally backend-only; never manufacture a filename here.
+  return rawUrl?.trim() || "";
 }
 
 /**
