@@ -42,6 +42,9 @@ jobs:
       - name: News discovery unit and invariant tests
         run: npm run test:news-discovery
 
+      - name: Archive behavioral integration tests
+        run: npx tsx server/archiveNewsDiscovery.test.ts
+
       - name: Production build
         run: npm run build
 
