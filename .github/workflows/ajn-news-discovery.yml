@@ -47,6 +47,24 @@ jobs:
       - name: Archive media resolver tests
         run: npm run test:archive-resolver
 
+      - name: Split-show directory contract
+        run: npm run test:archive-split-directory
+
+      - name: Split-show provenance parser tests
+        run: npm run test:archive-split-show
+
+      - name: Real Archive split-show provenance audit
+        run: npm run audit:archive-split-shows | tee archive-split-show-audit.json
+
+      - name: Upload split-show audit evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ajn-archive-split-show-audit
+          path: archive-split-show-audit.json
+          if-no-files-found: warn
+          retention-days: 14
+
       - name: Production build
         run: npm run build
 
