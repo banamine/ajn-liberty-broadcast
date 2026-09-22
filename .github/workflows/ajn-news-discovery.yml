@@ -1,24 +1,60 @@
-name: AJN News Discovery Verification
+name: AJN Comprehensive Verification
 
 on:
   push:
-    branches:
-      - main
-      - fix/news-discovery-behavior
+    branches: [main]
   pull_request:
-    branches:
-      - main
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
 
 jobs:
   verify:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node 20
+        uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: npm
-      - run: npm ci
-      - run: npm run lint
-      - run: npm run build
-      - run: npm run test:news-discovery
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Dependency audit
+        run: npm audit --audit-level=high
+
+      - name: TypeScript / strict type check
+        run: npx tsc --noEmit --skipLibCheck
+
+      - name: Lint
+        run: npm run lint
+
+      - name: News discovery unit and invariant tests
+        run: npm run test:news-discovery
+
+      - name: Production build
+        run: npm run build
+
+      - name: Verify required build output
+        run: |
+          test -f dist/index.html
+          test -f dist/server.cjs
+
+      - name: Upload build evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ajn-build-evidence
+          path: |
+            dist/**
+            package.json
+            tsconfig.json
+          if-no-files-found: warn
+          retention-days: 14
