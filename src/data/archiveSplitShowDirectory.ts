@@ -8,30 +8,30 @@
 export interface ArchiveShowM3uSource {
   id: string;
   name: string;
-  url: string;
+  url?: string;
   kind: "show" | "other";
 }
 
 const BASE = "https://archive.org/download/daily-highlights/m3u_split_shows_2026-08-05%20%281%29/split_shows/";
 
 export const ARCHIVE_SPLIT_SHOW_DIRECTORY: readonly ArchiveShowM3uSource[] = [
-  { id: "barnaby-jones", name: "Barnaby Jones", url: BASE + "Barnaby_Jones.m3u", kind: "show" },
-  { id: "barney-miller", name: "Barney Miller", url: BASE + "Barney_Miller.m3u", kind: "show" },
-  { id: "brooklyn-nine-nine", name: "Brooklyn Nine-Nine", url: BASE + "Brooklyn_Nine-Nine.m3u", kind: "show" },
-  { id: "cannon", name: "Cannon", url: BASE + "Cannon.m3u", kind: "show" },
-  { id: "charlies-angels", name: "Charlie's Angels", url: BASE + "Charlies_Angels.m3u", kind: "show" },
-  { id: "columbo", name: "Columbo", url: BASE + "Columbo.m3u", kind: "show" },
-  { id: "dick-tracy", name: "Dick Tracy", url: BASE + "Dick_Tracy.m3u", kind: "show" },
-  { id: "dragnet", name: "Dragnet", url: BASE + "Dragnet.m3u", kind: "show" },
-  { id: "ellery-queen", name: "Ellery Queen", url: BASE + "Ellery_Queen.m3u", kind: "show" },
-  { id: "gotham", name: "Gotham", url: BASE + "Gotham.m3u", kind: "show" },
-  { id: "hache", name: "Hache", url: BASE + "Hache.m3u", kind: "show" },
-  { id: "hart-to-hart", name: "Hart to Hart", url: BASE + "Hart_to_Hart.m3u", kind: "show" },
-  { id: "hawaii-five-o", name: "Hawaii Five-O", url: BASE + "Hawaii_Five-O.m3u", kind: "show" },
-  { id: "hunter", name: "Hunter", url: BASE + "Hunter.m3u", kind: "show" },
-  { id: "knight-rider", name: "Knight Rider", url: BASE + "Knight_Rider.m3u", kind: "show" },
-  { id: "kojak", name: "Kojak", url: BASE + "Kojak.m3u", kind: "show" },
-  { id: "mission-impossible", name: "Mission Impossible", url: BASE + "Mission_Impossible.m3u", kind: "show" },
+  { id: "barnaby-jones", name: "Barnaby Jones", kind: "show" },
+  { id: "barney-miller", name: "Barney Miller", kind: "show" },
+  { id: "brooklyn-nine-nine", name: "Brooklyn Nine-Nine", kind: "show" },
+  { id: "cannon", name: "Cannon", kind: "show" },
+  { id: "charlies-angels", name: "Charlie's Angels", kind: "show" },
+  { id: "columbo", name: "Columbo", kind: "show" },
+  { id: "dick-tracy", name: "Dick Tracy", kind: "show" },
+  { id: "dragnet", name: "Dragnet", kind: "show" },
+  { id: "ellery-queen", name: "Ellery Queen", kind: "show" },
+  { id: "gotham", name: "Gotham", kind: "show" },
+  { id: "hache", name: "Hache", kind: "show" },
+  { id: "hart-to-hart", name: "Hart to Hart", kind: "show" },
+  { id: "hawaii-five-o", name: "Hawaii Five-O", kind: "show" },
+  { id: "hunter", name: "Hunter", kind: "show" },
+  { id: "knight-rider", name: "Knight Rider", kind: "show" },
+  { id: "kojak", name: "Kojak", kind: "show" },
+  { id: "mission-impossible", name: "Mission Impossible", kind: "show" },
   { id: "moonlighting", name: "Moonlighting", url: BASE + "Moonlighting.m3u", kind: "show" },
   { id: "police-woman", name: "Police Woman", url: BASE + "Police_Woman.m3u", kind: "show" },
   { id: "sherlock-holmes", name: "Sherlock Holmes", url: BASE + "Sherlock_Holmes.m3u", kind: "show" },
@@ -45,6 +45,7 @@ export const ARCHIVE_SPLIT_SHOW_DIRECTORY: readonly ArchiveShowM3uSource[] = [
 ] as const;
 
 export const ARCHIVE_SPLIT_SHOW_DIRECTORY_EXPECTED_SHOW_COUNT = 26;
+export const ARCHIVE_SPLIT_SHOW_DIRECTORY_VERIFIED_URL_COUNT = 10;
 
 export function validateArchiveSplitShowDirectory(sources = ARCHIVE_SPLIT_SHOW_DIRECTORY): string[] {
   const errors: string[] = [];
