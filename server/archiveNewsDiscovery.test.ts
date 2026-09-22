@@ -1,11 +1,14 @@
 import {
   buildArchiveNewsSearchUrl,
   discoverArchiveNews,
+  getArchiveCollectionCandidates,
   discoverPlayableArchiveNews,
   PAGE_ROWS
 } from "./archiveNewsDiscovery.ts";
 
 const NOW = Date.parse("2026-09-22T12:00:00Z");
+const collectionCandidates = getArchiveCollectionCandidates("TV-CNNW");
+if (collectionCandidates.join("|") !== "CNNW|TV-CNNW") throw new Error("collection alias normalization failed");
 const id=(i:number,n:string)=>{ const d=new Date(NOW-i*30*60*1000); const z=(v:number)=>String(v).padStart(2,"0"); return "CNNW_"+d.getUTCFullYear()+z(d.getUTCMonth()+1)+z(d.getUTCDate())+"_"+z(d.getUTCHours())+z(d.getUTCMinutes())+"00_"+n; };
 const freshDocs=Array.from({length:75},(_,i)=>({
   identifier:id(i,"SHOW_"+i),
@@ -47,6 +50,9 @@ const url=buildArchiveNewsSearchUrl("CNNW",NOW,50);
 if(!url.includes("start=50")) throw new Error("pagination start parameter missing");
 const discovered=await discoverArchiveNews("CNNW",NOW,fetcher);
 if(searchCalls < 2) throw new Error("expected pagination beyond first Archive page");
+if (!buildArchiveNewsSearchUrl("CNNW", NOW, 0).includes("collection%3ACNNW")) {
+  throw new Error("canonical collection query missing");
+}
 if(discovered.length !== 75) throw new Error("expected 75 fresh records after pagination, got "+discovered.length);
 if(discovered[0].airTime < discovered[discovered.length-1].airTime) throw new Error("newest-first ordering failed");
 if(discovered.some(x=>x.identifier.includes("TOO_OLD"))) throw new Error("48-hour freshness filtering failed");
