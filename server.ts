@@ -3408,6 +3408,24 @@ app.get("/api/ajn-archive", async (req, res) => {
     }
   });
 
+  // Canonical Archive media resolver. The client receives only metadata-backed, HTTP-verified media.
+  app.get("/api/archive/resolve", async (req, res) => {
+    const identifier = String(req.query.identifier || "").trim();
+    const file = String(req.query.file || "").trim() || undefined;
+    if (!identifier) {
+      res.status(400).json({ success: false, error: "Missing required query parameter: identifier" });
+      return;
+    }
+    try {
+      const { resolveArchiveMedia } = await import("./server/archiveMediaResolver");
+      const resolved = await resolveArchiveMedia(identifier, file);
+      res.status(resolved.isAvailable ? 200 : 404).json({ success: resolved.isAvailable, ...resolved });
+    } catch (error: any) {
+      console.error("[Archive Resolver] failed:", error?.message || error);
+      res.status(502).json({ success: false, error: "archive_resolver_failed" });
+    }
+  });
+
   // API Route: Batch Import Playlists from Archive.org Metadata API
   app.post("/api/playlist/import-batch-archive-metadata", async (req, res) => {
     const { identifiers, tasks, preferredFormat } = req.body;
