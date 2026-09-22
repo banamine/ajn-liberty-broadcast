@@ -3,6 +3,7 @@ dotenv.config();
 
 import express from "express";import streamProxyRouter from "./server/routes/streamProxy.ts";
 import { discoverPlayableArchiveNews } from "./server/archiveNewsDiscovery.ts";
+import { resolveArchiveMedia } from "./server/archiveMediaResolver.ts";
 
 import path from "path";
 import fs from "fs";
@@ -3417,7 +3418,6 @@ app.get("/api/ajn-archive", async (req, res) => {
       return;
     }
     try {
-      const { resolveArchiveMedia } = await import("./server/archiveMediaResolver");
       const resolved = await resolveArchiveMedia(identifier, file);
       res.status(resolved.isAvailable ? 200 : 404).json({ success: resolved.isAvailable, ...resolved });
     } catch (error: any) {
