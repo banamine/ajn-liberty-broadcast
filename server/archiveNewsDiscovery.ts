@@ -12,7 +12,7 @@ export const NEWS_FRESHNESS_MS = 48 * 60 * 60 * 1000;
 export const PAGE_ROWS = 50;
 export const MAX_PAGES = 8;
 
-const ID_RE = /^([A-Z0-9]+)_(\d{4})(\d{2})(\d{2})_(\d{2})(\d{2})(\d{2})_(.+)$/;
+const ID_RE = /^([A-Z0-9]+)_(\d{4})(\d{2})(\d{2})_(\d{2})(\d{2})(\d{2})(?:_(.+))?$/;
 
 export function airTimeFromIdentifier(identifier: string, fallback?: string): number {
   const m = identifier.match(ID_RE);
@@ -59,17 +59,33 @@ export async function discoverArchiveNews(
   fetcher: ArchiveFetch,
   maxPages = MAX_PAGES
 ): Promise<ArchiveNewsCandidate[]> {
-  const seen = new Set<string>();
-  const results: ArchiveNewsCandidate[] = [];
-  let start = 0;
+  const candidates = getArchiveCollectionCandidates(network);
+  let selected: string | null = null;
+  let selectedDocs: any[] = [];
 
-  for (let page = 0; page < maxPages; page++) {
-    const response = await fetcher(buildArchiveNewsSearchUrl(network, now, start));
-    if (!response.ok) throw new Error("Archive search HTTP "+response.status);
+  // Archive TV News is not consistent about collection aliases. Test the
+  // canonical slug first, then the TV-* alias used by the known-good
+  // behavioral implementation. Select the first candidate with results.
+  for (const collection of candidates) {
+    const response = await fetcher(buildArchiveNewsSearchUrl(collection, now, 0));
+    if (!response.ok) continue;
+
     const data: any = await response.json();
     const docs = Array.isArray(data?.response?.docs) ? data.response.docs : [];
     const total = Number(data?.response?.numFound || 0);
+    if (docs.length > 0 || total > 0) {
+      selected = collection;
+      selectedDocs = docs;
+      break;
+    }
+  }
 
+  if (!selected) return [];
+
+  const seen = new Set<string>();
+  const results: ArchiveNewsCandidate[] = [];
+
+  const addDocs = (docs: any[]) => {
     for (const doc of docs) {
       const item = normalizeArchiveDoc(doc);
       if (item && !seen.has(item.identifier)) {
@@ -77,6 +93,19 @@ export async function discoverArchiveNews(
         results.push(item);
       }
     }
+  };
+
+  addDocs(selectedDocs);
+
+  let start = PAGE_ROWS;
+  for (let page = 1; page < maxPages; page++) {
+    const response = await fetcher(buildArchiveNewsSearchUrl(selected, now, start));
+    if (!response.ok) break;
+
+    const data: any = await response.json();
+    const docs = Array.isArray(data?.response?.docs) ? data.response.docs : [];
+    const total = Number(data?.response?.numFound || 0);
+    addDocs(docs);
 
     if (docs.length < PAGE_ROWS || results.length >= total) break;
     start += PAGE_ROWS;
@@ -85,48 +114,6 @@ export async function discoverArchiveNews(
   const cutoff = now - NEWS_FRESHNESS_MS;
   return results
     .filter(item => item.airTime >= cutoff && item.airTime <= now)
-    .sort((a,b) => b.airTime - a.airTime);
+    .sort((a,b)=>b.airTime-a.airTime);
 }
 
-export async function validateArchiveMedia(
-  identifier: string,
-  fetcher: ArchiveFetch
-): Promise<{ok:true;url:string}|{ok:false;reason:string}> {
-  try {
-    const meta = await fetcher("https://archive.org/metadata/"+encodeURIComponent(identifier));
-    if (!meta.ok) return {ok:false,reason:"metadata_http_"+meta.status};
-    const data: any = await meta.json();
-    const files = Array.isArray(data?.files) ? data.files : [];
-    const file = files.find((f:any) => {
-      const n=String(f?.name||"").toLowerCase();
-      const fmt=String(f?.format||"").toLowerCase();
-      return (/\.(mp4|m4v|webm|mov|ts)$/i.test(n) || fmt.includes("mpeg4")) &&
-             !n.includes("_thumb") && !n.includes("_meta");
-    });
-    if (!file?.name) return {ok:false,reason:"no_playable_media_file"};
-    const encoded=String(file.name).split("/").map(encodeURIComponent).join("/");
-    const url="https://archive.org/download/"+identifier+"/"+encoded;
-    const head=await fetcher(url,{method:"HEAD",redirect:"follow",headers:{"Range":"bytes=0-0"}});
-    if (head.status===403 || head.status===404) return {ok:false,reason:"media_http_"+head.status};
-    if (!head.ok && head.status!==206) return {ok:false,reason:"media_http_"+head.status};
-    return {ok:true,url};
-  } catch (e:any) {
-    return {ok:false,reason:String(e?.message||"media_validation_error")};
-  }
-}
-
-export async function discoverPlayableArchiveNews(
-  network: string,
-  now: number,
-  fetcher: ArchiveFetch,
-  maxPages = MAX_PAGES
-): Promise<Array<ArchiveNewsCandidate & {mediaUrl:string}>> {
-  const discovered=await discoverArchiveNews(network,now,fetcher,maxPages);
-  const output:Array<ArchiveNewsCandidate & {mediaUrl:string}>=[];
-  for (const item of discovered) {
-    const validation=await validateArchiveMedia(item.identifier,fetcher);
-    if (validation.ok) output.push({...item,mediaUrl:validation.url});
-    // A failed item is intentionally skipped; discovery continues.
-  }
-  return output.sort((a,b)=>b.airTime-a.airTime);
-}
