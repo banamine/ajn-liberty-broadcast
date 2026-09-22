@@ -44,6 +44,8 @@ jobs:
 
       - name: Archive behavioral integration tests
         run: npx tsx server/archiveNewsDiscovery.test.ts
+      - name: Archive media resolver tests
+        run: npm run test:archive-resolver
 
       - name: Production build
         run: npm run build
