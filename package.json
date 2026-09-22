@@ -11,12 +11,13 @@
     "clean": "rm -rf dist",
     "lint": "tsc --noEmit --skipLibCheck",
     "test:news-discovery": "npx tsx server/newsDiscovery.test.ts",
-    "test": "npm run lint && npm run test:ci-contract && npm run test:news-discovery && npm run test:archive-news && npm run test:archive-resolver && npm run test:archive-split-show",
+    "test": "npm run lint && npm run test:ci-contract && npm run test:news-discovery && npm run test:archive-news && npm run test:archive-resolver && npm run test:archive-split-show && npm run test:archive-split-directory",
     "test:ci-contract": "node scripts/audit-ci-contract.mjs",
     "test:archive-news": "npx tsx server/archiveNewsDiscovery.test.ts",
     "test:archive-resolver": "npx tsx server/archiveMediaResolver.test.ts",
     "test:archive-split-show": "npx tsx server/archiveSplitShowAudit.test.ts",
-    "audit:archive-split-shows": "npx tsx scripts/audit-archive-split-shows.ts"
+    "audit:archive-split-shows": "npx tsx scripts/audit-archive-split-shows.ts",
+    "test:archive-split-directory": "npx tsx server/archiveSplitShowDirectory.test.ts"
   },
   "dependencies": {
     "@google/genai": "^2.4.0",
