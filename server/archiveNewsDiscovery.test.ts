@@ -6,9 +6,9 @@ import {
 } from "./archiveNewsDiscovery.ts";
 
 const NOW = Date.parse("2026-09-22T12:00:00Z");
-const id=(h:number,n:string)=>\`CNNW_20260922_\${String(12-Math.floor(h)).padStart(2,"0")}0000_\${n}\`;
+const id=(i:number,n:string)=>{ const d=new Date(NOW-i*30*60*1000); const z=(v:number)=>String(v).padStart(2,"0"); return "CNNW_"+d.getUTCFullYear()+z(d.getUTCMonth()+1)+z(d.getUTCDate())+"_"+z(d.getUTCHours())+z(d.getUTCMinutes())+"00_"+n; };
 const freshDocs=Array.from({length:75},(_,i)=>({
-  identifier:id(i/2,"SHOW_"+i),
+  identifier:id(i,"SHOW_"+i),
   title:"Show "+i,
   publicdate:new Date(NOW-i*30*60*1000).toISOString()
 }));
