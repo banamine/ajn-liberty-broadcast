@@ -30,6 +30,7 @@ import {
   purgeOldEpisodes,
   reconstructSegments,
   NEWS_REGISTRY,
+  normalizeNewsDiscovery,
   mergeDatabasePayload,
   getCustomChannels,
   insertCustomChannel,
@@ -759,11 +760,21 @@ express.static.mime.define({'application/javascript': ['js', 'cjs', 'mjs']});
             }
           }
 
-          // Apply Jaquith Algorithm headline deduplication
+          // Apply URL/title deduplication, then enforce the same newest-first 48-hour
+          // discovery semantics as the verified Archive TV News implementation.
           const dedupedEpisodes = jaquithDeduplicate(rawEpisodes);
+          const normalizedEpisodes = normalizeNewsDiscovery(
+            dedupedEpisodes.map((ep) => ({
+              id: ep.url,
+              title: ep.title,
+              url: ep.url,
+              timestamp: ep.timestamp,
+              airTime: ep.timestamp
+            }))
+          );
 
           let newClipsCount = 0;
-          for (const ep of dedupedEpisodes) {
+          for (const ep of normalizedEpisodes) {
             // Apply classifyNewsSource logic
             const classification = classifyNewsSource(ep.title, ep.url, profile);
 
@@ -775,7 +786,9 @@ express.static.mime.define({'application/javascript': ['js', 'cjs', 'mjs']});
               profileId: classification.profileId,
               title: ep.title,
               url: ep.url,
-              timestamp: ep.timestamp
+              timestamp: ep.timestamp,
+              airTime: ep.airTime,
+              playability: "unverified"
             });
 
             newClipsCount++;
@@ -791,7 +804,7 @@ express.static.mime.define({'application/javascript': ['js', 'cjs', 'mjs']});
 
       // "Stale Metadata" Purge Window (DELETE clips older than 24 hours)
       const purgeCutoff = purgeOldEpisodes();
-      console.log(`[NewsBot] Purged stale metadata older than 24h (cutoff: ${new Date(purgeCutoff).toISOString()})`);
+      console.log(`[NewsBot] Purged stale metadata older than 48h (cutoff: ${new Date(purgeCutoff).toISOString()})`);
 
       // Compile M3U Manifests using Atomic Swaps
       for (const profile of activeProfiles) {
