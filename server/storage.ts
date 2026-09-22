@@ -26,6 +26,9 @@ export interface Episode {
   timestamp: number;
   poster_art?: string | null;
   backdrop_thumb?: string | null;
+  airTime?: number | null;
+  playability?: "playable" | "unplayable" | "unverified";
+  playabilityError?: string | null;
 }
 
 export const NEWS_REGISTRY: Record<string, { displayName: string; logoUrl: string; rssUrl: string }> = {
@@ -108,6 +111,35 @@ export function saveDatabase() {
   }
 }
 
+export interface NewsDiscoveryCandidate {
+  id: string;
+  title: string;
+  url: string;
+  airTime: number;
+  timestamp: number;
+}
+
+export const NEWS_DISCOVERY_FRESHNESS_MS = 48 * 60 * 60 * 1000;
+
+export function normalizeNewsDiscovery(
+  candidates: NewsDiscoveryCandidate[],
+  now = Date.now(),
+  freshnessMs = NEWS_DISCOVERY_FRESHNESS_MS,
+): NewsDiscoveryCandidate[] {
+  const cutoff = now - freshnessMs;
+  const seen = new Set<string>();
+
+  return [...candidates]
+    .filter((candidate) => {
+      if (!candidate.url || !Number.isFinite(candidate.airTime)) return false;
+      if (candidate.airTime < cutoff || candidate.airTime > now) return false;
+      if (seen.has(candidate.url)) return false;
+      seen.add(candidate.url);
+      return true;
+    })
+    .sort((a, b) => b.airTime - a.airTime);
+}
+
 export function getNewsProfiles(): NewsProfile[] {
   return dbInMemory.news_profiles;
 }
@@ -147,7 +179,7 @@ export function insertEpisode(episode: Episode) {
 }
 
 export function purgeOldEpisodes(): number {
-  const cutoff = Date.now() - 4 * 7 * 24 * 60 * 60 * 1000; // 4 weeks ago
+  const cutoff = Date.now() - 48 * 60 * 60 * 1000; // 48-hour rolling news freshness window
   const beforeCount = dbInMemory.episodes.length;
   dbInMemory.episodes = dbInMemory.episodes.filter(ep => ep.timestamp >= cutoff);
   const beforeArchiveCount = dbInMemory.rss_archive_episodes.length;
