@@ -393,7 +393,7 @@ if (playerStore.state === "playing" && audioController.isSiriusPlaying) {
         try {
           const params = new URLSearchParams({ identifier });
           if (specificFile) params.set("file", specificFile);
-          const resolved = await fetch(`/api/archive/resolve?${params.toString()}`).then(r => r.ok ? r.json() : null);
+          const resolved = await fetch(`/api/archive/resolve?${params.toString()}`).then(async r => { try { return await r.json(); } catch { return null; } });
           if (resolved?.isAvailable && resolved?.streamUrl) {
             playoutUrl = resolved.streamUrl;
           } else {
