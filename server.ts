@@ -2,6 +2,8 @@ import dotenv from "dotenv";
 dotenv.config();
 
 import express from "express";import streamProxyRouter from "./server/routes/streamProxy.ts";
+import { discoverPlayableArchiveNews } from "./server/archiveNewsDiscovery.ts";
+
 import path from "path";
 import fs from "fs";
 import cors from "cors";
@@ -3149,6 +3151,32 @@ app.get("/api/ajn-archive", async (req, res) => {
       return { title: filename };
     }
   }
+
+  // API Route: Behavioral Archive TV News discovery
+  app.get("/api/v1/news/archive-discovery", async (req, res) => {
+    const network = String(req.query.network || "CNNW").trim().toUpperCase();
+    const allowed = new Set(["CNNW", "CSPAN", "FOXNEWSW", "MSNBCW"]);
+    if (!allowed.has(network)) {
+      res.status(400).json({ success: false, error: "Unsupported news network" });
+      return;
+    }
+
+    try {
+      const items = await discoverPlayableArchiveNews(network, Date.now(), fetch);
+      res.json({
+        success: true,
+        network,
+        count: items.length,
+        items
+      });
+    } catch (err: any) {
+      console.error("[Archive News Discovery]", err);
+      res.status(502).json({
+        success: false,
+        error: err?.message || "Archive news discovery failed"
+      });
+    }
+  });
 
   // API Route: Advanced Search Archive.org
   app.get("/api/archive/search", async (req, res) => {
